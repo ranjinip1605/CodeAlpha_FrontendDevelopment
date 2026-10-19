@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A sleek, modern, accessible single-file basic calculator web app with dark/light mode, history tracking, and keyboard support.">
+  <title>Calc.io — Modern Web Calculator</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. CSS CUSTOM PROPERTIES & DESIGN SYSTEM
+       ========================================================================== */
+    :root {
+      /* Color Palette - Dark Theme (Default) */
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      --card-bg: rgba(30, 41, 59, 0.75);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(99, 102, 241, 0.15);
+      
+      --display-bg: rgba(15, 23, 42, 0.65);
+      --display-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-prev: #cbd5e1;
+
+      --btn-num-bg: rgba(51, 65, 85, 0.5);
+      --btn-num-hover: rgba(71, 85, 105, 0.8);
+      --btn-num-active: rgba(99, 102, 241, 0.3);
+      --btn-num-text: #f1f5f9;
+      --btn-num-border: rgba(255, 255, 255, 0.05);
+
+      --btn-op-bg: rgba(99, 102, 241, 0.2);
+      --btn-op-hover: rgba(99, 102, 241, 0.35);
+      --btn-op-active: rgba(99, 102, 241, 0.5);
+      --btn-op-text: #818cf8;
+      --btn-op-border: rgba(99, 102, 241, 0.3);
+
+      --btn-action-bg: rgba(239, 68, 68, 0.15);
+      --btn-action-hover: rgba(239, 68, 68, 0.3);
+      --btn-action-text: #f87171;
+      --btn-action-border: rgba(239, 68, 68, 0.3);
+
+      --btn-equals-bg: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      --btn-equals-hover: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+      --btn-equals-text: #ffffff;
+      --btn-equals-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+
+      --badge-bg: rgba(99, 102, 241, 0.2);
+      --badge-text: #a5b4fc;
+
+      --focus-ring: #818cf8;
+
+      --drawer-bg: rgba(15, 23, 42, 0.95);
+      
+      --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --radius-app: 28px;
+      --radius-btn: 18px;
+      --radius-display: 20px;
+      --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="light"] {
+      /* Color Palette - Light Theme */
+      --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e0e7ff 50%, #f1f5f9 100%);
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(255, 255, 255, 0.8);
+      --card-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.2), 0 0 20px rgba(0, 0, 0, 0.05);
+
+      --display-bg: rgba(248, 250, 252, 0.9);
+      --display-border: rgba(226, 232, 240, 0.8);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-prev: #475569;
+
+      --btn-num-bg: rgba(255, 255, 255, 0.9);
+      --btn-num-hover: rgba(241, 245, 249, 1);
+      --btn-num-active: rgba(224, 231, 255, 0.8);
+      --btn-num-text: #1e293b;
+      --btn-num-border: rgba(203, 213, 225, 0.4);
+
+      --btn-op-bg: rgba(238, 242, 255, 0.9);
+      --btn-op-hover: rgba(224, 231, 255, 1);
+      --btn-op-active: rgba(199, 210, 254, 1);
+      --btn-op-text: #4f46e5;
+      --btn-op-border: rgba(199, 210, 254, 0.8);
+
+      --btn-action-bg: rgba(254, 242, 242, 0.9);
+      --btn-action-hover: rgba(254, 226, 226, 1);
+      --btn-action-text: #dc2626;
+      --btn-action-border: rgba(254, 202, 202, 0.8);
+
+      --btn-equals-bg: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+      --btn-equals-hover: linear-gradient(135deg, #4338ca 0%, #312e81 100%);
+      --btn-equals-text: #ffffff;
+      --btn-equals-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+
+      --badge-bg: rgba(79, 70, 229, 0.1);
+      --badge-text: #4338ca;
+
+      --focus-ring: #4f46e5;
+
+      --drawer-bg: rgba(255, 255, 255, 0.96);
+    }
+
+    /* ==========================================================================
+       2. BASE STYLES & RESET
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      color: var(--text-main);
+      transition: background var(--transition-fast), color var(--transition-fast);
+      overflow-x: hidden;
+    }
+
+    /* ==========================================================================
+       3. CALCULATOR WRAPPER & CONTAINER
+       ========================================================================== */
+    .calculator-container {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-app);
+      box-shadow: var(--card-shadow);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow: hidden;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    /* Header Bar */
+    .calc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 4px;
+    }
+
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--text-main) 30%, var(--text-muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-icon {
+      width: 22px;
+      height: 22px;
+      background: var(--btn-equals-bg);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      -webkit-text-fill-color: initial;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: var(--btn-num-bg);
+      border: 1px solid var(--btn-num-border);
+      color: var(--text-muted);
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .icon-btn:hover {
+      background: var(--btn-num-hover);
+      color: var(--text-main);
+      transform: translateY(-1px);
+    }
+
+    .icon-btn:active {
+      transform: translateY(0);
+    }
+
+    .icon-btn:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    .icon-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ==========================================================================
+       4. DISPLAY SCREEN
+       ========================================================================== */
+    .display-screen {
+      background: var(--display-bg);
+      border: 1px solid var(--display-border);
+      border-radius: var(--radius-display);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: space-between;
+      min-height: 110px;
+      word-break: break-all;
+      word-wrap: break-word;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .previous-operand-container {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 24px;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--text-prev);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .operator-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .current-operand {
+      font-family: var(--font-mono);
+      font-size: 2.25rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.2;
+      transition: font-size var(--transition-fast);
+      user-select: all;
+    }
+
+    .current-operand.error-state {
+      font-size: 1.15rem !important;
+      color: var(--btn-action-text);
+      font-family: var(--font-sans);
+      font-weight: 500;
+    }
+
+    /* ==========================================================================
+       5. KEYPAD GRID & BUTTONS
+       ========================================================================== */
+    .keypad-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      font-family: var(--font-sans);
+      font-size: 1.35rem;
+      font-weight: 500;
+      min-height: 60px;
+      border-radius: var(--radius-btn);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      transition: background var(--transition-fast), 
+                  transform var(--transition-fast), 
+                  box-shadow var(--transition-fast),
+                  border-color var(--transition-fast);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn:active, .btn.btn-pressed {
+      transform: scale(0.94);
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    /* Button Variants */
+    .btn-number {
+      background: var(--btn-num-bg);
+      color: var(--btn-num-text);
+      border: 1px solid var(--btn-num-border);
+    }
+
+    .btn-number:hover {
+      background: var(--btn-num-hover);
+    }
+
+    .btn-operator {
+      background: var(--btn-op-bg);
+      color: var(--btn-op-text);
+      border: 1px solid var(--btn-op-border);
+      font-size: 1.45rem;
+      font-weight: 600;
+    }
+
+    .btn-operator:hover {
+      background: var(--btn-op-hover);
+    }
+
+    .btn-operator.active-op {
+      background: var(--btn-op-active);
+      box-shadow: 0 0 12px var(--btn-op-border);
+      border-color: var(--focus-ring);
+    }
+
+    .btn-action {
+      background: var(--btn-action-bg);
+      color: var(--btn-action-text);
+      border: 1px solid var(--btn-action-border);
+      font-weight: 600;
+      font-size: 1.15rem;
+    }
+
+    .btn-action:hover {
+      background: var(--btn-action-hover);
+    }
+
+    .btn-equals {
+      background: var(--btn-equals-bg);
+      color: var(--btn-equals-text);
+      box-shadow: var(--btn-equals-shadow);
+      font-size: 1.6rem;
+      font-weight: 600;
+    }
+
+    .btn-equals:hover {
+      background: var(--btn-equals-hover);
+      box-shadow: 0 6px 18px rgba(79, 70, 229, 0.5);
+    }
+
+    /* Special Grid Spans */
+    .btn-span-2 {
+      grid-column: span 2;
+      border-radius: 20px;
+    }
+
+    /* Ripple Effect */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple-anim 0.4s linear;
+      background-color: rgba(255, 255, 255, 0.3);
+      pointer-events: none;
+    }
+
+    @keyframes ripple-anim {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    /* ==========================================================================
+       6. HISTORY DRAWER PANEL
+       ========================================================================== */
+    .history-drawer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--drawer-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      z-index: 10;
+      border-radius: var(--radius-app);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      opacity: 0;
+      visibility: hidden;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 0.35s ease,
+                  visibility 0.35s ease;
+    }
+
+    .history-drawer.open {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--display-border);
+    }
+
+    .history-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 4px;
+    }
+
+    /* Custom Scrollbar */
+    .history-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    .history-list::-webkit-scrollbar-thumb {
+      background: var(--text-muted);
+      border-radius: 4px;
+      opacity: 0.3;
+    }
+
+    .history-item {
+      background: var(--display-bg);
+      border: 1px solid var(--display-border);
+      padding: 12px 14px;
+      border-radius: 14px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      transition: all var(--transition-fast);
+    }
+
+    .history-item:hover {
+      border-color: var(--focus-ring);
+      transform: translateX(-2px);
+    }
+
+    .history-expression {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .history-result {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .history-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      gap: 10px;
+      text-align: center;
+    }
+
+    .history-footer {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--display-border);
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .clear-history-btn {
+      background: transparent;
+      border: none;
+      color: var(--btn-action-text);
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: background var(--transition-fast);
+    }
+
+    .clear-history-btn:hover {
+      background: var(--btn-action-bg);
+    }
+
+    /* ==========================================================================
+       7. FOOTER & HINT
+       ========================================================================== */
+    .keyboard-hint {
+      margin-top: 16px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .kbd-badge {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+
+    /* ==========================================================================
+       8. RESPONSIVE & ACCESSIBILITY ADJUSTMENTS
+       ========================================================================== */
+    @media (max-width: 440px) {
+      body {
+        padding: 8px;
+      }
+      .calculator-container {
+        padding: 16px;
+        gap: 14px;
+        border-radius: 24px;
+      }
+      .keypad-grid {
+        gap: 8px;
+      }
+      .btn {
+        min-height: 54px;
+        font-size: 1.2rem;
+        border-radius: 14px;
+      }
+      .btn-span-2 {
+        border-radius: 14px;
+      }
+      .display-screen {
+        padding: 14px;
+        min-height: 95px;
+      }
+      .current-operand {
+        font-size: 1.9rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Main Calculator Card -->
+  <main class="calculator-container" role="application" aria-label="Calculator">
+    
+    <!-- Top Header Bar -->
+    <header class="calc-header">
+      <div class="brand-title">
+        <span class="brand-icon">÷</span>
+        Calc.io
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="history-toggle-btn" aria-label="Open calculation history" title="Calculation History">
+          <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </button>
+        <button class="icon-btn" id="theme-toggle-btn" aria-label="Toggle color theme" title="Toggle Theme">
+          <svg id="theme-icon-sun" viewBox="0 0 24 24" style="display:none;"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg id="theme-icon-moon" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Calculator Display Screen -->
+    <section class="display-screen" aria-live="polite" aria-atomic="true">
+      <div class="previous-operand-container" id="previous-operand">
+        <!-- Displayed via JS: e.g. 125 + -->
+      </div>
+      <div class="current-operand" id="current-operand">0</div>
+    </section>
+
+    <!-- Keypad Grid -->
+    <section class="keypad-grid" aria-label="Calculator Keypad">
+      <!-- Row 1 -->
+      <button class="btn btn-action" data-action="all-clear" data-key="Escape" aria-label="All Clear (Reset)">AC</button>
+      <button class="btn btn-action" data-action="delete" data-key="Backspace" aria-label="Delete last entry">DEL</button>
+      <button class="btn btn-operator" data-action="toggle-sign" data-key="n" aria-label="Toggle positive or negative">+/−</button>
+      <button class="btn btn-operator" data-operator="÷" data-key="/" aria-label="Divide">÷</button>
+
+      <!-- Row 2 -->
+      <button class="btn btn-number" data-digit="7" data-key="7">7</button>
+      <button class="btn btn-number" data-digit="8" data-key="8">8</button>
+      <button class="btn btn-number" data-digit="9" data-key="9">9</button>
+      <button class="btn btn-operator" data-operator="×" data-key="*" aria-label="Multiply">×</button>
+
+      <!-- Row 3 -->
+      <button class="btn btn-number" data-digit="4" data-key="4">4</button>
+      <button class="btn btn-number" data-digit="5" data-key="5">5</button>
+      <button class="btn btn-number" data-digit="6" data-key="6">6</button>
+      <button class="btn btn-operator" data-operator="−" data-key="-" aria-label="Subtract">−</button>
+
+      <!-- Row 4 -->
+      <button class="btn btn-number" data-digit="1" data-key="1">1</button>
+      <button class="btn btn-number" data-digit="2" data-key="2">2</button>
+      <button class="btn btn-number" data-digit="3" data-key="3">3</button>
+      <button class="btn btn-operator" data-operator="+" data-key="+" aria-label="Add">+</button>
+
+      <!-- Row 5 -->
+      <button class="btn btn-number btn-span-2" data-digit="0" data-key="0" aria-label="Zero">0</button>
+      <button class="btn btn-number" data-digit="." data-key="." aria-label="Decimal point">.</button>
+      <button class="btn btn-equals" data-action="equals" data-key="Enter" aria-label="Equals">=</button>
+    </section>
+
+    <!-- History Panel Slide-out -->
+    <aside class="history-drawer" id="history-drawer" aria-label="Calculation History">
+      <div class="history-header">
+        <div class="history-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          History
+        </div>
+        <button class="icon-btn" id="history-close-btn" aria-label="Close history">
+          <svg viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="history-list" id="history-list">
+        <!-- Dynamic History Items -->
+      </div>
+
+      <div class="history-footer">
+        <button class="clear-history-btn" id="clear-history-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          Clear History
+        </button>
+      </div>
+    </aside>
+
+  </main>
+
+  <footer class="keyboard-hint">
+    <span>Supports keyboard input:</span>
+    <kbd class="kbd-badge">0-9</kbd>
+    <kbd class="kbd-badge">+ - * /</kbd>
+    <kbd class="kbd-badge">Enter</kbd>
+    <kbd class="kbd-badge">Esc</kbd>
+  </footer>
+
+  <!-- ==========================================================================
+     9. JAVASCRIPT CALCULATOR LOGIC
+     ========================================================================== -->
+  <script>
+    'use strict';
+
+    /**
+     * Calculator State Object
+     */
+    class Calculator {
+      constructor(previousOperandElement, currentOperandElement) {
+        this.previousOperandElement = previousOperandElement;
+        this.currentOperandElement = currentOperandElement;
+        this.history = [];
+        this.loadHistory();
+        this.clear();
+      }
+
+      /** Reset all calculator state */
+      clear() {
+        this.currentOperand = '0';
+        this.previousOperand = '';
+        this.operation = undefined;
+        this.shouldResetScreen = false;
+        this.isErrorState = false;
+      }
+
+      /** Delete last entered digit */
+      delete() {
+        if (this.isErrorState) {
+          this.clear();
+          return;
+        }
+        if (this.shouldResetScreen) {
+          this.currentOperand = '0';
+          this.shouldResetScreen = false;
+          return;
+        }
+        if (this.currentOperand.length === 1 || (this.currentOperand.length === 2 && this.currentOperand.startsWith('-'))) {
+          this.currentOperand = '0';
+        } else {
+          this.currentOperand = this.currentOperand.toString().slice(0, -1);
+        }
+      }
+
+      /** Append digit or decimal point */
+      appendDigit(digit) {
+        if (this.isErrorState) {
+          this.clear();
+        }
+
+        if (this.shouldResetScreen) {
+          this.currentOperand = '';
+          this.shouldResetScreen = false;
+        }
+
+        // Avoid multiple decimals
+        if (digit === '.' && this.currentOperand.includes('.')) return;
+
+        // Leading zero handling
+        if (this.currentOperand === '0' && digit !== '.') {
+          this.currentOperand = digit.toString();
+          return;
+        }
+
+        // Limit character length for input
+        if (this.currentOperand.replace('-', '').replace('.', '').length >= 15) return;
+
+        this.currentOperand = this.currentOperand.toString() + digit.toString();
+      }
+
+      /** Toggle positive/negative sign */
+      toggleSign() {
+        if (this.isErrorState || this.currentOperand === '0') return;
+        if (this.currentOperand.startsWith('-')) {
+          this.currentOperand = this.currentOperand.slice(1);
+        } else {
+          this.currentOperand = '-' + this.currentOperand;
+        }
+      }
+
+      /** Choose arithmetic operation (+, −, ×, ÷) */
+      chooseOperation(operation) {
+        if (this.isErrorState) return;
+
+        if (this.currentOperand === '' && this.previousOperand !== '') {
+          this.operation = operation;
+          return;
+        }
+
+        if (this.previousOperand !== '') {
+          this.compute();
+        }
+
+        if (this.isErrorState) return;
+
+        this.operation = operation;
+        this.previousOperand = this.currentOperand;
+        this.shouldResetScreen = true;
+      }
+
+      /** Perform computation explicitly without using eval() */
+      compute() {
+        let computation;
+        const prev = parseFloat(this.previousOperand);
+        const current = parseFloat(this.currentOperand);
+
+        if (isNaN(prev) || isNaN(current)) return;
+
+        switch (this.operation) {
+          case '+':
+            computation = prev + current;
+            break;
+          case '−':
+          case '-':
+            computation = prev - current;
+            break;
+          case '×':
+          case '*':
+            computation = prev * current;
+            break;
+          case '÷':
+          case '/':
+            if (current === 0) {
+              this.currentOperand = 'Cannot divide by zero';
+              this.previousOperand = '';
+              this.operation = undefined;
+              this.isErrorState = true;
+              return;
+            }
+            computation = prev / current;
+            break;
+          default:
+            return;
+        }
+
+        // Floating point error correction (e.g., 0.1 + 0.2 = 0.3)
+        computation = Math.round((computation + Number.EPSILON) * 1e12) / 1e12;
+
+        const expr = `${this.formatDisplayNumber(prev.toString())} ${this.operation} ${this.formatDisplayNumber(current.toString())}`;
+        const resultStr = computation.toString();
+
+        this.addHistory(expr, this.formatDisplayNumber(resultStr));
+
+        this.currentOperand = resultStr;
+        this.operation = undefined;
+        this.previousOperand = '';
+        this.shouldResetScreen = true;
+      }
+
+      /** Format number strings cleanly (handling comma separators and exponential notation) */
+      formatDisplayNumber(numberStr) {
+        if (!numberStr) return '';
+        if (numberStr === 'Cannot divide by zero') return numberStr;
+
+        const stringNumber = numberStr.toString();
+        
+        // Handle scientific notation for extreme numbers
+        const numVal = parseFloat(stringNumber);
+        if (!isNaN(numVal) && (Math.abs(numVal) >= 1e12 || (Math.abs(numVal) > 0 && Math.abs(numVal) < 1e-7))) {
+          return numVal.toExponential(6);
+        }
+
+        const splitNumber = stringNumber.split('.');
+        const integerDigits = parseFloat(splitNumber[0]);
+        const decimalDigits = splitNumber[1];
+        let integerDisplay;
+
+        if (isNaN(integerDigits)) {
+          integerDisplay = splitNumber[0] === '-' ? '-' : '';
+        } else {
+          integerDisplay = integerDigits.toLocaleString('en-US', { maximumFractionDigits: 0 });
+        }
+
+        if (decimalDigits != null) {
+          return `${integerDisplay}.${decimalDigits}`;
+        } else {
+          return integerDisplay;
+        }
+      }
+
+      /** Update DOM Display elements */
+      updateDisplay() {
+        if (this.isErrorState) {
+          this.currentOperandElement.innerText = this.currentOperand;
+          this.currentOperandElement.classList.add('error-state');
+          this.previousOperandElement.innerHTML = '';
+          return;
+        }
+
+        this.currentOperandElement.classList.remove('error-state');
+        this.currentOperandElement.innerText = this.formatDisplayNumber(this.currentOperand);
+
+        // Dynamically adjust font size for long numbers
+        const charLength = this.currentOperandElement.innerText.length;
+        if (charLength > 12) {
+          this.currentOperandElement.style.fontSize = '1.35rem';
+        } else if (charLength > 9) {
+          this.currentOperandElement.style.fontSize = '1.75rem';
+        } else {
+          this.currentOperandElement.style.fontSize = '2.25rem';
+        }
+
+        if (this.operation != null) {
+          this.previousOperandElement.innerHTML = `
+            <span>${this.formatDisplayNumber(this.previousOperand)}</span>
+            <span class="operator-badge">${this.operation}</span>
+          `;
+        } else {
+          this.previousOperandElement.innerHTML = '';
+        }
+      }
+
+      /** History Management */
+      addHistory(expression, result) {
+        this.history.unshift({ expression, result, id: Date.now() });
+        if (this.history.length > 20) this.history.pop();
+        this.saveHistory();
+        this.renderHistory();
+      }
+
+      saveHistory() {
+        try {
+          localStorage.setItem('calc_history', JSON.stringify(this.history));
+        } catch (e) {
+          // Ignore localstorage write errors
+        }
+      }
+
+      loadHistory() {
+        try {
+          const saved = localStorage.getItem('calc_history');
+          if (saved) this.history = JSON.parse(saved);
+        } catch (e) {
+          this.history = [];
+        }
+      }
+
+      clearHistory() {
+        this.history = [];
+        this.saveHistory();
+        this.renderHistory();
+      }
+
+      renderHistory() {
+        const historyList = document.getElementById('history-list');
+        if (!historyList) return;
+
+        if (this.history.length === 0) {
+          historyList.innerHTML = `
+            <div class="history-empty">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>No calculation history yet</span>
+            </div>
+          `;
+          return;
+        }
+
+        historyList.innerHTML = this.history.map(item => `
+          <div class="history-item" data-result="${item.result.replace(/,/g, '')}" tabindex="0" role="button" aria-label="Use result ${item.result}">
+            <div class="history-expression">${item.expression}</div>
+            <div class="history-result">= ${item.result}</div>
+          </div>
+        `).join('');
+
+        // Attach click listeners to history items
+        historyList.querySelectorAll('.history-item').forEach(item => {
+          item.addEventListener('click', () => {
+            const resVal = item.getAttribute('data-result');
+            if (resVal) {
+              this.currentOperand = resVal;
+              this.shouldResetScreen = false;
+              this.isErrorState = false;
+              this.updateDisplay();
+              toggleHistoryDrawer(false);
+            }
+          });
+        });
+      }
+    }
+
+    /* ==========================================================================
+       10. DOM INITIALIZATION & EVENT HANDLERS
+       ========================================================================== */
+    document.addEventListener('DOMContentLoaded', () => {
+      const previousOperandElement = document.getElementById('previous-operand');
+      const currentOperandElement = document.getElementById('current-operand');
+      const calculator = new Calculator(previousOperandElement, currentOperandElement);
+
+      calculator.updateDisplay();
+      calculator.renderHistory();
+
+      // Ripple Effect Handler
+      function createRipple(event, button) {
+        const circle = document.createElement('span');
+        const diameter = Math.max(button.clientWidth, button.clientHeight);
+        const radius = diameter / 2;
+        const rect = button.getBoundingClientRect();
+
+        circle.style.width = circle.style.height = `${diameter}px`;
+        circle.style.left = `${(event.clientX || rect.left + rect.width / 2) - rect.left - radius}px`;
+        circle.style.top = `${(event.clientY || rect.top + rect.height / 2) - rect.top - radius}px`;
+        circle.classList.add('ripple');
+
+        const ripple = button.getElementsByClassName('ripple')[0];
+        if (ripple) ripple.remove();
+
+        button.appendChild(circle);
+      }
+
+      // Button Click Delegations
+      const keypad = document.querySelector('.keypad-grid');
+      keypad.addEventListener('click', (e) => {
+        const button = e.target.closest('button');
+        if (!button) return;
+
+        createRipple(e, button);
+
+        if (button.dataset.digit != null) {
+          calculator.appendDigit(button.dataset.digit);
+          calculator.updateDisplay();
+        }
+
+        if (button.dataset.operator != null) {
+          calculator.chooseOperation(button.dataset.operator);
+          calculator.updateDisplay();
+        }
+
+        if (button.dataset.action != null) {
+          switch (button.dataset.action) {
+            case 'all-clear':
+              calculator.clear();
+              calculator.updateDisplay();
+              break;
+            case 'delete':
+              calculator.delete();
+              calculator.updateDisplay();
+              break;
+            case 'toggle-sign':
+              calculator.toggleSign();
+              calculator.updateDisplay();
+              break;
+            case 'equals':
+              calculator.compute();
+              calculator.updateDisplay();
+              break;
+          }
+        }
+
+        updateActiveOperatorHighlight();
+      });
+
+      // Highlight active operator button if waiting for next operand
+      function updateActiveOperatorHighlight() {
+        document.querySelectorAll('.btn-operator').forEach(btn => {
+          if (calculator.operation && btn.dataset.operator === calculator.operation) {
+            btn.classList.add('active-op');
+          } else {
+            btn.classList.remove('active-op');
+          }
+        });
+      }
+
+      // Keyboard Shortcut Integration
+      const keyMap = {
+        '0': '0', '1': '1', '2': '2', '3': '3', '4': '4',
+        '5': '5', '6': '6', '7': '7', '8': '8', '9': '9',
+        '.': '.',
+        '+': '+',
+        '-': '−',
+        '*': '×',
+        '/': '÷',
+        'Enter': 'equals',
+        '=': 'equals',
+        'Backspace': 'delete',
+        'Escape': 'all-clear',
+        'Delete': 'all-clear'
+      };
+
+      document.addEventListener('keydown', (e) => {
+        // Ignore keydown if focused inside an input field (if any were added)
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        const key = e.key;
+
+        if (key in keyMap) {
+          e.preventDefault();
+          const targetValue = keyMap[key];
+
+          let btnToHighlight = null;
+
+          if (['0','1','2','3','4','5','6','7','8','9','.'].includes(targetValue)) {
+            calculator.appendDigit(targetValue);
+            btnToHighlight = document.querySelector(`button[data-digit="${targetValue}"]`);
+          } else if (['+','−','×','÷'].includes(targetValue)) {
+            calculator.chooseOperation(targetValue);
+            btnToHighlight = document.querySelector(`button[data-operator="${targetValue}"]`);
+          } else if (targetValue === 'equals') {
+            calculator.compute();
+            btnToHighlight = document.querySelector(`button[data-action="equals"]`);
+          } else if (targetValue === 'delete') {
+            calculator.delete();
+            btnToHighlight = document.querySelector(`button[data-action="delete"]`);
+          } else if (targetValue === 'all-clear') {
+            calculator.clear();
+            btnToHighlight = document.querySelector(`button[data-action="all-clear"]`);
+          }
+
+          calculator.updateDisplay();
+          updateActiveOperatorHighlight();
+
+          // Visual keypress animation feedback
+          if (btnToHighlight) {
+            btnToHighlight.classList.add('btn-pressed');
+            setTimeout(() => btnToHighlight.classList.remove('btn-pressed'), 150);
+          }
+        }
+      });
+
+      // Theme Toggle Functionality
+      const themeToggleBtn = document.getElementById('theme-toggle-btn');
+      const sunIcon = document.getElementById('theme-icon-sun');
+      const moonIcon = document.getElementById('theme-icon-moon');
+      const htmlElement = document.documentElement;
+
+      function setTheme(theme) {
+        htmlElement.setAttribute('data-theme', theme);
+        if (theme === 'light') {
+          sunIcon.style.display = 'none';
+          moonIcon.style.display = 'block';
+        } else {
+          sunIcon.style.display = 'block';
+          moonIcon.style.display = 'none';
+        }
+        try {
+          localStorage.setItem('calc_theme', theme);
+        } catch(e) {}
+      }
+
+      // Load saved theme or match system preference
+      const savedTheme = localStorage.getItem('calc_theme');
+      if (savedTheme) {
+        setTheme(savedTheme);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        setTheme('light');
+      } else {
+        setTheme('dark');
+      }
+
+      themeToggleBtn.addEventListener('click', () => {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        setTheme(currentTheme === 'light' ? 'dark' : 'light');
+      });
+
+      // History Drawer Handler
+      const historyDrawer = document.getElementById('history-drawer');
+      const historyToggleBtn = document.getElementById('history-toggle-btn');
+      const historyCloseBtn = document.getElementById('history-close-btn');
+      const clearHistoryBtn = document.getElementById('clear-history-btn');
+
+      function toggleHistoryDrawer(open) {
+        if (open) {
+          historyDrawer.classList.add('open');
+        } else {
+          historyDrawer.classList.remove('open');
+        }
+      }
+
+      historyToggleBtn.addEventListener('click', () => toggleHistoryDrawer(true));
+      historyCloseBtn.addEventListener('click', () => toggleHistoryDrawer(false));
+      clearHistoryBtn.addEventListener('click', () => calculator.clearHistory());
+
+      // Close history on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && historyDrawer.classList.contains('open')) {
+          toggleHistoryDrawer(false);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
